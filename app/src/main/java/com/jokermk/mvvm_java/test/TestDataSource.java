@@ -16,8 +16,8 @@ public class TestDataSource extends BaseRemoteDataSource {
     }
 
 
-    public void queryWeather(String city, RequestCallback<String> callback) {
-        execute(getService(ApiService.class).queryWeather(city),callback);
+    public void queryWeather(String name, RequestCallback<LoginBean> callback) {
+        execute(getService(ApiService.class).login(name),callback);
     }
 
 

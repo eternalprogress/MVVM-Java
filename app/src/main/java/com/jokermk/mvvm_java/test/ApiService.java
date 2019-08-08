@@ -5,7 +5,7 @@ import com.jokermk.basemvvm.net.model.BaseResponse;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
-import retrofit2.http.Query;
+import retrofit2.http.Path;
 
 /**
  * 作者：leavesC
@@ -16,7 +16,7 @@ import retrofit2.http.Query;
  */
 public interface ApiService {
 
-    @GET("onebox/weather/query")
-    Observable<BaseResponse<String>> queryWeather(@Query("cityname") String cityName);
+    @GET("login/{name}")
+    Observable<BaseResponse<LoginBean>> login(@Path("name") String name);
 
 }

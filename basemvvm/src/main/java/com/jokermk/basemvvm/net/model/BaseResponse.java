@@ -1,7 +1,5 @@
 package com.jokermk.basemvvm.net.model;
 
-import com.google.gson.annotations.SerializedName;
-
 /**
  * @Author: Joker
  * @Date: 2019/7/23 15:49
@@ -10,13 +8,13 @@ import com.google.gson.annotations.SerializedName;
 public class BaseResponse<T> {
     public static final int SUCCEED = 200;
 
-    @SerializedName("error_code")
+//    @SerializedName("error_code")
     private int code;
 
-    @SerializedName("reason")
+//    @SerializedName("reason")
     private String msg;
 
-    @SerializedName("result")
+//    @SerializedName("result")
     private T data;
 
     public boolean success() {

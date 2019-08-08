@@ -18,8 +18,8 @@ public class TestDataViewModel extends BaseViewModel {
         return liveData;
     }
 
-    public void test(String city) {
-        testDataSource.queryWeather(city, s -> liveData.setValue(s));
+    public void test(String name) {
+        testDataSource.queryWeather(name, s -> liveData.setValue(s.getName()));
     }
 
 
