@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.jokermk.basemvvm.event.BaseActionEvent;
 import com.jokermk.basemvvm.lifecycle.ButterKnifeLifecycleManager;
+import com.jokermk.basemvvm.viewmodel.BaseAndroidViewModel;
 import com.jokermk.basemvvm.viewmodel.BaseViewModel;
 
 import java.util.ArrayList;
@@ -162,6 +163,44 @@ public abstract class BaseActivity extends AppCompatActivity {
                     }
                 });
             }
+            
+            if (viewModel instanceof BaseAndroidViewModel) {
+                BaseAndroidViewModel viewModelAction = (BaseAndroidViewModel) viewModel;
+                viewModelAction.getActionLiveData().observe(this, new Observer<BaseActionEvent>() {
+                    @Override
+                    public void onChanged(BaseActionEvent baseActionEvent) {
+                        if (baseActionEvent != null) {
+                            switch (baseActionEvent.getAction()) {
+                                case BaseActionEvent.SHOW_LOADING_DIALOG: {
+                                    startLoading(baseActionEvent.getMessage());
+                                    break;
+                                }
+                                case BaseActionEvent.DISMISS_LOADING_DIALOG: {
+                                    dismissLoading();
+                                    break;
+                                }
+                                case BaseActionEvent.SHOW_TOAST: {
+                                    showToast(baseActionEvent.getMessage());
+                                    break;
+                                }
+                                case BaseActionEvent.FINISH: {
+                                    finish();
+                                    break;
+                                }
+                                case BaseActionEvent.FINISH_WITH_RESULT_OK: {
+                                    setResult(RESULT_OK);
+                                    finish();
+                                    break;
+                                }
+                                case BaseActionEvent.SHOW_ERROR:{
+                                    showError(baseActionEvent.getCode(),baseActionEvent.getMessage());
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
         }
     }
 
@@ -190,7 +229,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public <T extends BaseViewModel> T  getViewModel(Class<T> modelClass) {
+    public <T extends ViewModel> T  getViewModel(Class<T> modelClass) {
         return ViewModelProviders.of(this).get(modelClass);
     }
 
