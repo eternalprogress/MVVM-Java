@@ -1,6 +1,8 @@
 package com.jokermk.mvvm_java.test;
 
 
+import android.text.Editable;
+
 import com.jokermk.basemvvm.viewmodel.BaseViewModel;
 
 import androidx.lifecycle.MutableLiveData;
@@ -13,13 +15,18 @@ import androidx.lifecycle.MutableLiveData;
 public class TestDataViewModel extends BaseViewModel {
     private TestDataSource testDataSource = new TestDataSource(this);
     private MutableLiveData<String> liveData = new MutableLiveData<>();
-
+    public String name;
     public MutableLiveData<String> getLiveData() {
         return liveData;
     }
 
     public void test(String name) {
         testDataSource.queryWeather(name, s -> liveData.setValue(s.getName()));
+    }
+
+
+    public void textchange(Editable s) {
+        name = s.toString();
     }
 
 
