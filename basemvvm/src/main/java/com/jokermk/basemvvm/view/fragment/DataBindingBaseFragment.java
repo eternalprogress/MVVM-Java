@@ -1,15 +1,14 @@
-package com.jokermk.basemvvm.view;
+package com.jokermk.basemvvm.view.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.jokermk.basemvvm.event.BaseActionEvent;
-import com.jokermk.basemvvm.lifecycle.ButterKnifeLifecycleManager;
 import com.jokermk.basemvvm.viewmodel.BaseAndroidViewModel;
 import com.jokermk.basemvvm.viewmodel.BaseViewModel;
 
@@ -17,64 +16,85 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
+import butterknife.Unbinder;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
- * @Author: Joker
- * @Date: 2019/7/23 16:57
- * @Description:
+ * Created by @ZhangBo
+ * on @2017/12/6.
  */
-public abstract class BaseActivity extends AppCompatActivity {
-    private boolean isNormal;
-    private ProgressDialog loadingDialog;
 
+public abstract class DataBindingBaseFragment<T extends ViewDataBinding> extends Fragment {
+    protected View mRoot;
+    protected Unbinder mRootUnBinder;
+    private ProgressDialog loadingDialog;
+    protected T viewDataBinding;
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //在界面未初始化之前调用的初始化窗口
-        initWindows();
-        isNormal =  initArgs(getIntent().getExtras());
-        if (isNormal) {
-            AppManager.getAppManager().addActivity(this);
-            //得到界面id并设置上去
-            setContentView(getContentLayoutId());
-//           StatusBarUtil.immersive(this);
-//           StatusBarUtil.darkMode(this);
-            initViewModelEvent();
-            initWidget();
-            initData();
-        }else {
-            finish();
-        }
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        //初始化参数
+        initArgs(getArguments());
     }
 
-    /**
-     * 初始化窗口
-     */
-    protected void initWindows(){
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle
+            savedInstanceState) {
+        if (mRoot == null) {
+            int layId = getContentLayoutId();
+            //初始化当前的根布局,但是不在创建时就添加到container里面去
+//            View root = inflater.inflate(layId,container,false);
+            viewDataBinding =  DataBindingUtil.inflate(inflater,layId,container,false);
+            viewDataBinding.setLifecycleOwner(this);
+            mRoot = viewDataBinding.getRoot();
+            initViewModelEvent();
+            initWidget();
+        } else {
+            if (mRoot.getParent() != null) {
+                //把当前Root从其父控件中移除
+                ((ViewGroup)mRoot.getParent()).removeView(mRoot);
+            }
+        }
 
+        return mRoot;
+
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //当View创建完成之后初始化数据
+        initData();
     }
     /**
      * 初始化相关参数
      * @param bundle  参数Bundle
-     * @return 如果参数正确返回true,错误返回false
+     *
      */
-    protected boolean initArgs(Bundle bundle) {
-        return true;
+    protected void initArgs(Bundle bundle) {
+
     }
+
     /**
-     *  得到当前界面的资源文件的id
-     * @return 资源文件id
+     * 得到去当前的资源文件
+     * @return 资源文件Id
      */
     protected abstract int getContentLayoutId();
+
     /**
      * 初始化控件
+     *
      */
     protected void initWidget() {
-        ButterKnifeLifecycleManager.bindButterKnife(this,this);
+
     }
 
     /**
@@ -84,25 +104,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     }
 
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (ScreenUtils.isShouldHideInput(v, ev)) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-            }
-            return super.dispatchTouchEvent(ev);
-        }
-        // 必不可少，否则所有的组件都不会有TouchEvent了
-        if (getWindow().superDispatchTouchEvent(ev)) {
-            return true;
-        }
-        return onTouchEvent(ev);
-    }
 
     private void initViewModelEvent() {
         List<ViewModel> viewModelList = initViewModelList();
@@ -147,12 +148,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                                     break;
                                 }
                                 case BaseActionEvent.FINISH: {
-                                    finish();
+                                    getActivity().finish();
                                     break;
                                 }
                                 case BaseActionEvent.FINISH_WITH_RESULT_OK: {
-                                    setResult(RESULT_OK);
-                                    finish();
+                                    getActivity().setResult(RESULT_OK);
+                                    getActivity().finish();
                                     break;
                                 }
                                 case BaseActionEvent.SHOW_ERROR:{
@@ -163,7 +164,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     }
                 });
             }
-            
+
             if (viewModel instanceof BaseAndroidViewModel) {
                 BaseAndroidViewModel viewModelAction = (BaseAndroidViewModel) viewModel;
                 viewModelAction.getActionLiveData().observe(this, new Observer<BaseActionEvent>() {
@@ -184,12 +185,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                                     break;
                                 }
                                 case BaseActionEvent.FINISH: {
-                                    finish();
+                                    getActivity().finish();
                                     break;
                                 }
                                 case BaseActionEvent.FINISH_WITH_RESULT_OK: {
-                                    setResult(RESULT_OK);
-                                    finish();
+                                    getActivity().setResult(RESULT_OK);
+                                    getActivity().finish();
                                     break;
                                 }
                                 case BaseActionEvent.SHOW_ERROR:{
@@ -204,18 +205,19 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
+
     protected  void showError(int code, String message) {
-        Toast.makeText(this,"error:" +code+ message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(),"error:" +code+ message, Toast.LENGTH_SHORT).show();
     }
 
     protected void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
 
     protected void startLoading(String message) {
         if (loadingDialog == null) {
-            loadingDialog = new ProgressDialog(this);
+            loadingDialog = new ProgressDialog(getActivity());
             loadingDialog.setCancelable(false);
             loadingDialog.setCanceledOnTouchOutside(false);
         }
@@ -234,4 +236,23 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * 返回按钮触发时
+     * @return  返回true代表我已经处理返回逻辑,Activity不用自己finish.
+     * 返回false代表我没有处理,activity自己走自己的逻辑
+     */
+     public boolean onBackPressed() {
+         return false;
+     }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mRootUnBinder!=null) {
+            mRootUnBinder.unbind();
+        }
+
+    }
 }

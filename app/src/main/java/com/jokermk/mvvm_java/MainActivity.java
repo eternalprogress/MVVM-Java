@@ -1,7 +1,7 @@
 package com.jokermk.mvvm_java;
 
 
-import com.jokermk.basemvvm.view.DataBindingBaseActivity;
+import com.jokermk.basemvvm.view.activity.DataBindingBaseActivity;
 import com.jokermk.mvvm_java.databinding.ActivityMainBinding;
 import com.jokermk.mvvm_java.test.TestDataViewModel;
 
