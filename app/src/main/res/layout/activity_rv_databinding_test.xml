@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".bravhtest.RvDatabindingTestActivity">
+    <data>
+        <variable
+            name="RvData"
+            type="com.jokermk.mvvm_java.bravhtest.RvDataBindViewModel"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+       >
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:bindLayoutManagerType="@{2}"
+            android:gridLayoutCount="@{4}"
+            android:reAdapter="@{RvData.testAdapter}"
+            android:onChildItemClick="@{RvData::textchange}"
+            />
+    </FrameLayout>
+
+</layout>
