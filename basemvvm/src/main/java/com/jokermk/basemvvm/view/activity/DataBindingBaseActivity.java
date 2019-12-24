@@ -160,7 +160,7 @@ public abstract class DataBindingBaseActivity<T extends ViewDataBinding> extends
                                     break;
                                 }
                                 case BaseActionEvent.SHOW_ERROR:{
-                                    showToast(baseActionEvent.getMessage());
+                                    showError(baseActionEvent.getCode(),baseActionEvent.getMessage());
                                 }
                             }
                         }
